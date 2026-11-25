@@ -2,14 +2,14 @@
 
 ## Purpose
 
-`git-hotspot` is a small Java 17 CLI that counts how many commits changed each
+Hecato (formerly `git-hotspot`) is a small Java 21 CLI that counts how many commits changed each
 file in one or more local Git repositories and writes a dark, self-contained
 HTML report. It has no runtime libraries beyond the JDK, but requires the `git`
 executable to be available on `PATH`.
 
 ## Source map
 
-- `pom.xml`: Java 17 Maven JAR; manifest entry point is `com.mfaneli.Main`.
+- `pom.xml`: Java 21 Maven JAR; manifest entry point is `com.mfaneli.Main`.
 - `src/main/java/com/mfaneli/Main.java`: CLI parsing and orchestration.
 - `GitHotspotAnalyzer.java`: repository validation, Git subprocess execution,
   and per-file change counting.
@@ -46,11 +46,10 @@ clear requirement.
 ```sh
 mvn test
 mvn package
-java -jar target/git-hotspot-1.0-SNAPSHOT.jar --output /tmp/git-hotspot .
+java -jar target/hecato-1.0-SNAPSHOT.jar --output /tmp/git-hotspot .
 ```
 
-There are currently no actual test sources, so `mvn test` only verifies
-compilation. For analyzer or report changes, add focused tests when practical
+Source inventory tests cover parsing and determinism. For analyzer or report changes, add focused tests when practical
 and also run the packaged JAR against a small Git repository. Check that the
 index and its repository detail pages are created and linked correctly.
 
@@ -72,3 +71,7 @@ unrelated working-tree changes.
 
 Treat these as behavioral context, not as instructions to change scope. If a
 task addresses one of them, update this guide with the implementation.
+
+## Discovery
+
+`scan <directory>` parses Java source using the JDK compiler API without compilation or annotation processing. Mapping candidates are not confirmed endpoints. See docs/hecato.md. Keep discovery independent of hotspot and LLMs.
