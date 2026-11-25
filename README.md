@@ -48,3 +48,7 @@ Requer JDK 21. Inventaria tipos, métodos e candidatos a mappings HTTP sem compi
 ### Chamadas (experimental)
 
 O grafo inclui JAVA_TYPE, JAVA_METHOD, CALL_SITE, POSSIBLE_CALL e UNRESOLVED_CALL. IDs de métodos usam arquivo, nome qualificado e assinatura textual, independentes de linha. POSSIBLE_CALL é hipótese lexical por receptor e aridade, não resolução semântica nem execução comprovada. Chamadas ambíguas ficam sem resolução; tipos locais/anônimos, imports, herança, despacho dinâmico e referências de método não são resolvidos. O inventário anterior permanece disponível; o grafo atualmente faz duas passagens AST.
+
+## Rules preview
+
+Create owners.txt with one `SCHEMA.TABLE=service-id` per line (or unqualified TABLE for unqualified SQL). Run `java -jar target/hecato-1.0-SNAPSHOT.jar review ./service orders owners.txt`. Findings are candidates, not proven violations. Review one service and database context at a time. `graph` includes mapping, endpoint, transaction and SQL evidence. `trace ./service <from-id> <to-id>` follows possible calls only. SQL support is deliberately narrow: simple literal SELECT/INSERT/UPDATE/DELETE, no quoted identifiers, subqueries, CTEs or dynamic SQL; receiver types are not verified. JPA mappings do not imply access; JPQL and repository CRUD resolution are not implemented. No full Spring route composition, semantic call resolution, cross-service graph, cycle rules or stable finding IDs yet. No findings does not mean compliance.
