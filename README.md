@@ -3,7 +3,7 @@
 Goals of that project is index files more updated in some git project, that way identify possible risk when you need make a new chance in the project, showing what file normaly are changed.
 
 ## Technology
-Java 17
+Java 21
 
 ## Como executar
 
@@ -39,4 +39,4 @@ alterados.
 java -jar target/hecato-1.0-SNAPSHOT.jar scan /caminho/repositorio
 ```
 
-Requer JDK 17. Inventaria tipos, métodos e candidatos a mappings HTTP sem compilar ou executar o projeto analisado. Não resolve endpoints completos nem dependências ainda. Consulte [roadmap](docs/hecato.md).
+Requer JDK 21. Inventaria tipos, métodos e candidatos a mappings HTTP sem compilar ou executar o projeto analisado. Não resolve endpoints completos nem dependências ainda. Consulte [roadmap](docs/hecato.md).
