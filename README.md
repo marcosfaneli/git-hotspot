@@ -40,3 +40,7 @@ java -jar target/hecato-1.0-SNAPSHOT.jar scan /caminho/repositorio
 ```
 
 Requer JDK 21. Inventaria tipos, métodos e candidatos a mappings HTTP sem compilar ou executar o projeto analisado. Não resolve endpoints completos nem dependências ainda. Consulte [roadmap](docs/hecato.md).
+
+## Grafo estrutural experimental
+
+`java -jar target/hecato-1.0-SNAPSHOT.jar graph ./repo --json` exporta JSON v1; omita `--json` para TXT. POMs são lidos offline, sem resolver herança, perfis ou propriedades. Dependências são declarações, não dependências efetivas. Identificadores de código incluem linha e ainda não são estáveis entre revisões; não há resolução de chamadas nem ownership.
