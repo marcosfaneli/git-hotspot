@@ -52,3 +52,11 @@ O grafo inclui JAVA_TYPE, JAVA_METHOD, CALL_SITE, POSSIBLE_CALL e UNRESOLVED_CAL
 ## Rules preview
 
 Create owners.txt with one `SCHEMA.TABLE=service-id` per line (or unqualified TABLE for unqualified SQL). Run `java -jar target/hecato-1.0-SNAPSHOT.jar review ./service orders owners.txt`. Findings are candidates, not proven violations. Review one service and database context at a time. `graph` includes mapping, endpoint, transaction and SQL evidence. `trace ./service <from-id> <to-id>` follows possible calls only. SQL support is deliberately narrow: simple literal SELECT/INSERT/UPDATE/DELETE, no quoted identifiers, subqueries, CTEs or dynamic SQL; receiver types are not verified. JPA mappings do not imply access; JPQL and repository CRUD resolution are not implemented. No full Spring route composition, semantic call resolution, cross-service graph, cycle rules or stable finding IDs yet. No findings does not mean compliance.
+
+## Functional policy preview
+
+Run `mvn clean verify` then `java -jar target/hecato-1.0-SNAPSHOT.jar analyze ./service`. No ownership catalog required. `endpoints ./service` lists lexical routes. Optional third argument rules.txt supports `REST-007=OFF`, `category.TRANSACTIONS=OFF`, and INFO/WARNING/ERROR/OFF. Per-rule override wins. Existing review remains separate and must be used within a single known database context.
+
+Rules: REST-001/002/003/007, ARCH-001, TX-001/002/003, PERSIST-001/002/003, MICRO-001, CODE-001. All findings are candidates except unresolved persistence, which is inconclusive. HTTP semantics reference: RFC 9110 sections 9.2.1, 9.3.1, 15.3.5. Resource naming is a convention, not an HTTP requirement.
+
+Limitations: lexical simple annotation/type names, declared fields only for receiver heuristics, no local shadowing resolution, no effective Spring configuration or proxy semantics, incomplete route composition, no semantic call resolution across dependencies, no JPA CRUD-to-table resolution, no multi-datasource mapping, no cross-service graph or cycle checks, no effective timeout/retry analysis. MICRO-001 is informational inventory only. No findings is not proof of compliance. Performance work deferred. Do not use as a blocking CI gate before validating findings.
