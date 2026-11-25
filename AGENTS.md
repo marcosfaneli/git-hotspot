@@ -2,14 +2,14 @@
 
 ## Purpose
 
-Hecato (formerly `git-hotspot`) is a small Java 17 CLI that counts how many commits changed each
+Hecato (formerly `git-hotspot`) is a small Java 21 CLI that counts how many commits changed each
 file in one or more local Git repositories and writes a dark, self-contained
 HTML report. It has no runtime libraries beyond the JDK, but requires the `git`
 executable to be available on `PATH`.
 
 ## Source map
 
-- `pom.xml`: Java 17 Maven JAR; manifest entry point is `com.mfaneli.Main`.
+- `pom.xml`: Java 21 Maven JAR; manifest entry point is `com.mfaneli.Main`.
 - `src/main/java/com/mfaneli/Main.java`: CLI parsing and orchestration.
 - `GitHotspotAnalyzer.java`: repository validation, Git subprocess execution,
   and per-file change counting.
