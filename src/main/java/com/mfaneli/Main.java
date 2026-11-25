@@ -5,6 +5,17 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        if (args.length > 0 && args[0].equals("graph")) {
+            if (args.length < 2 || args.length > 3 || (args.length == 3 && !args[2].equals("--json"))) {
+                System.err.println("Usage: graph <directory> [--json]");
+                System.exit(2);
+            }
+            try {
+                var graph = new com.mfaneli.architecture.GraphDiscovery().scan(java.nio.file.Path.of(args[1]));
+                System.out.print(args.length == 3 ? com.mfaneli.architecture.GraphReport.json(graph) + "\n" : com.mfaneli.architecture.GraphReport.text(graph));
+            } catch (IOException | IllegalArgumentException e) { System.err.println(e.getMessage()); System.exit(1); }
+            return;
+        }
         if (args.length > 0 && args[0].equals("scan")) {
             if (args.length != 2) { System.err.println("Usage: scan <directory>"); System.exit(2); }
             try {
