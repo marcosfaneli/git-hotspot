@@ -57,6 +57,13 @@ public final class GraphDiscovery {
             nodes.add(new Node(id,entry.kind(),entry.name(),entry.file(),entry.line()));
             edges.add(new Edge(fileId,id,"CONTAINS"));
         }
+        var callGraph = new com.mfaneli.discovery.CallInventory().scan(root);
+        nodes.addAll(callGraph.nodes());
+        edges.addAll(callGraph.edges());
+        for (var node : callGraph.nodes()) {
+            if (node.kind().equals("JAVA_TYPE"))
+                edges.add(new Edge("file:"+node.file(),node.id(),"CONTAINS"));
+        }
         return new ArchitectureGraph(nodes,edges);
     }
     private static String relative(Path root, Path p) { return root.relativize(p).toString().replace('\\','/'); }
