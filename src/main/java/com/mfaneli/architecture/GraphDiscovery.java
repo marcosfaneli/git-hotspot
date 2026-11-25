@@ -64,6 +64,15 @@ public final class GraphDiscovery {
             if (node.kind().equals("JAVA_TYPE"))
                 edges.add(new Edge("file:"+node.file(),node.id(),"CONTAINS"));
         }
+        for (var evidence : new com.mfaneli.discovery.AccessInventory().scan(root)) {
+            nodes.add(evidence);
+            String fileId = "file:"+evidence.file();
+            if (files.add(fileId)) {
+                nodes.add(new Node(fileId,"SOURCE_FILE",evidence.file(),evidence.file(),0));
+                edges.add(new Edge("root",fileId,"CONTAINS"));
+            }
+            edges.add(new Edge(fileId,evidence.id(),"CONTAINS"));
+        }
         return new ArchitectureGraph(nodes,edges);
     }
     private static String relative(Path root, Path p) { return root.relativize(p).toString().replace('\\','/'); }
