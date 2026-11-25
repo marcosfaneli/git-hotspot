@@ -1,4 +1,4 @@
-# git-hotspot
+# Hecato
 
 Goals of that project is index files more updated in some git project, that way identify possible risk when you need make a new chance in the project, showing what file normaly are changed.
 
@@ -9,7 +9,7 @@ Java 17
 
 ```shell
 mvn package
-java -jar target/git-hotspot-1.0-SNAPSHOT.jar /caminho/repositorio-1 /caminho/repositorio-2
+java -jar target/hecato-1.0-SNAPSHOT.jar /caminho/repositorio-1 /caminho/repositorio-2
 ```
 
 O resultado será salvo na pasta `git-hotspot-report` no diretório atual, com a
@@ -26,9 +26,17 @@ git-hotspot-report/
 Para escolher outra pasta, use a opção `--output` (ou `-o`):
 
 ```shell
-java -jar target/git-hotspot-1.0-SNAPSHOT.jar --output relatorios/hotspots /caminho/repositorio-1 /caminho/repositorio-2
+java -jar target/hecato-1.0-SNAPSHOT.jar --output relatorios/hotspots /caminho/repositorio-1 /caminho/repositorio-2
 ```
 
 O `index.html` apresenta o resumo geral e uma lista de repositórios. Cada item
 abre sua página na subpasta `repositories`, com os detalhes e os arquivos mais
 alterados.
+
+## Descoberta arquitetural (experimental)
+
+```sh
+java -jar target/hecato-1.0-SNAPSHOT.jar scan /caminho/repositorio
+```
+
+Requer JDK 17. Inventaria tipos, métodos e candidatos a mappings HTTP sem compilar ou executar o projeto analisado. Não resolve endpoints completos nem dependências ainda. Consulte [roadmap](docs/hecato.md).
