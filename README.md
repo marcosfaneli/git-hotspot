@@ -68,3 +68,6 @@ Ownership is optional. Explicit database scope must be correct for ALL SQL evide
 
 ### JPA evidence
 Direct JpaRepository<Entity,ID> declarations with uniquely named source entities and explicit @Entity/@Table mappings produce JPA_READ_CANDIDATE or JPA_WRITE_CANDIDATE for recognized CRUD calls on fields or parameters. Ownership consumes this evidence when explicitly scoped. No implicit naming strategy, indirect generic inheritance, cascade, JPQL, or datasource resolution. Simple-name matching remains lexical. Unqualified field calls in the call graph are considered unless a local declaration shadows the name. No performance optimization.
+
+### HTTP configuration evidence
+MICRO-002 flags explicitly declared zero Feign timeouts; MICRO-003 reports unresolved timeout values; MICRO-004 inventories retryer declarations for review. Supports simple application*.properties keys under spring.cloud.openfeign.client.config. Does not resolve profiles, YAML, environment, Java beans or effective runtime settings. Values are not emitted. Missing declarations are not violations.

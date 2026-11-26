@@ -25,7 +25,7 @@ public class Main {
                         } else if(!args[i].startsWith("--")&&!configured){config=engine.config(java.nio.file.Path.of(args[i]));configured=true;}
                         else throw new IllegalArgumentException("Invalid analysis argument: "+args[i]);
                     }
-                    var context=new com.mfaneli.architecture.PolicyEngine.Context(endpoints,new com.mfaneli.discovery.MethodFacts().scan(root),new com.mfaneli.discovery.AccessInventory().scan(root),new com.mfaneli.architecture.GraphDiscovery().scan(root),ownership);
+                    var context=new com.mfaneli.architecture.PolicyEngine.Context(endpoints,new com.mfaneli.discovery.MethodFacts().scan(root),new com.mfaneli.discovery.AccessInventory().scan(root),new com.mfaneli.architecture.GraphDiscovery().scan(root),ownership,new com.mfaneli.discovery.HttpInventory().scan(root));
                     var findings=engine.evaluate(context,com.mfaneli.architecture.PolicyEngine.defaults(),config);
                     if(json) System.out.println(com.mfaneli.architecture.PolicyReport.json(findings,endpoints.size()));
                     else { findings.forEach(System.out::println); System.out.println("Endpoints: "+endpoints.size()+" | Findings: "+findings.size()); }
