@@ -40,6 +40,8 @@ public final class PolicyEngine {
     public static List<Rule> defaults() {
         return List.of(
             new GraphPolicy(),
+            new RoutePolicy(false),
+            new RoutePolicy(true),
             new FactRule("REST-001","REST",Severity.ERROR,"GET_WRITE","Possible write from GET"),
             new FactRule("ARCH-001","ARCHITECTURE",Severity.WARNING,"CONTROLLER_REPOSITORY","Controller directly calls repository"),
             new FactRule("TX-001","TRANSACTIONS",Severity.WARNING,"SELF_TRANSACTION","Possible transactional self-invocation"),
