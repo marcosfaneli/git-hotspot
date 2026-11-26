@@ -74,7 +74,13 @@ public final class CallInventory {
                         nodes.add(node);
                         methods.add(new Method(node,owner,name,tree.getParameters().size(),tree.getParameters().stream().anyMatch(p -> p.toString().contains("..."))));
                         edges.add(new Edge("type:"+file+":"+owner,caller,"CONTAINS"));
-                        if (tree.getBody() != null) scan(tree.getBody(),unused);
+                        if (tree.getBody() != null) {
+                            new TreeScanner<Void,Void>() {
+                                @Override public Void visitVariable(VariableTree v,Void ignored) { parameters.put(v.getName().toString(),""); return super.visitVariable(v,ignored); }
+                                @Override public Void visitClass(ClassTree c,Void ignored){return null;}
+                            }.scan(tree.getBody(),null);
+                            scan(tree.getBody(),unused);
+                        }
                         caller = null;
                         parameters = Map.of();
                         return null;
@@ -90,7 +96,7 @@ public final class CallInventory {
                                     String expr = m.getExpression().toString();
                                     if (expr.equals("this")) receiver = owner;
                                     else if (expr.startsWith("this.")) receiver = fields.getOrDefault(expr.substring(5),"");
-                                    else receiver = parameters.getOrDefault(expr,"");
+                                    else receiver = parameters.getOrDefault(expr,fields.getOrDefault(expr,""));
                                 }
                                 default -> name = tree.getMethodSelect().toString();
                             }
