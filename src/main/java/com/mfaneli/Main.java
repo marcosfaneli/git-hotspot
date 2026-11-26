@@ -16,7 +16,7 @@ public class Main {
                 else {
                     var engine=new com.mfaneli.architecture.PolicyEngine();
                     var config=args.length==3?engine.config(java.nio.file.Path.of(args[2])):java.util.Map.<String,com.mfaneli.architecture.PolicyEngine.Severity>of();
-                    var context=new com.mfaneli.architecture.PolicyEngine.Context(endpoints,new com.mfaneli.discovery.MethodFacts().scan(root),new com.mfaneli.discovery.AccessInventory().scan(root));
+                    var context=new com.mfaneli.architecture.PolicyEngine.Context(endpoints,new com.mfaneli.discovery.MethodFacts().scan(root),new com.mfaneli.discovery.AccessInventory().scan(root),new com.mfaneli.architecture.GraphDiscovery().scan(root));
                     var findings=engine.evaluate(context,com.mfaneli.architecture.PolicyEngine.defaults(),config);
                     findings.forEach(System.out::println);
                     System.out.println("Endpoints: "+endpoints.size()+" | Findings: "+findings.size());
