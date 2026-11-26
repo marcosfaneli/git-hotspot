@@ -5,6 +5,31 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        if (args.length == 0 || java.util.Set.of("--help","-h","help").contains(args[0])) {
+            System.out.println("""
+                Hecato - static architecture analysis
+                Usage:
+                  hecato analyze [directory] [rules.txt] [--json]
+                      [--ownership <service> <database-id> <owners.txt>]
+                  hecato graph [directory] [--json]
+                  hecato endpoints [directory]
+                  hecato scan [directory]
+                  hecato hotspot [directories...] [--output <directory>]
+                  hecato review <directory> <service> <owners.txt>
+                  hecato trace <directory> <from-id> <to-id>
+                Directory defaults to the current directory for analyze, graph,
+                endpoints, scan and hotspot. Use an explicit directory before rules.txt.
+                """);
+            return;
+        }
+        if (java.util.Set.of("analyze","graph","endpoints","scan","hotspot").contains(args[0])
+                && (args.length == 1 || (args[1].startsWith("--") && !args[0].equals("hotspot")))) {
+            var expanded = new String[args.length + 1];
+            expanded[0] = args[0];
+            expanded[1] = ".";
+            System.arraycopy(args, 1, expanded, 2, args.length - 1);
+            args = expanded;
+        }
         if (args.length > 0 && java.util.Set.of("analyze","endpoints").contains(args[0])) {
             if(args.length<2||(args[0].equals("endpoints")&&args.length!=2)) {
                 System.err.println("Usage: analyze <directory> [rules.txt] | endpoints <directory>"); System.exit(2);
@@ -85,6 +110,7 @@ public class Main {
             System.out.println("Relatorio gerado em: " + cli.outputDirectory().resolve("index.html"));
         } catch (CliException | IOException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }
