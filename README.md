@@ -1,5 +1,15 @@
 # Hecato
 
+## Instalação rápida (Windows)
+
+Requisitos: JDK 21, Maven e Git no PATH. No PowerShell, na pasta do Hecato:
+
+```powershell
+.\install.ps1
+```
+
+Abra um novo terminal (PowerShell ou CMD) e execute `hecato --help` ou `hecato analyze` na pasta do projeto. Não requer administrador. O instalador adiciona `%LOCALAPPDATA%\Hecato\bin` ao PATH do usuário. Para atualizar, execute novamente o instalador. Para desinstalar, remova a pasta `%LOCALAPPDATA%\Hecato` e sua entrada `bin` do PATH do usuário. Se a política corporativa impedir scripts PowerShell, consulte o administrador; não altere a política para contorná-la.
+
 ## Instalação rápida (Linux)
 
 Requisitos: JDK 21, Maven e Git. Na pasta do Hecato, execute:
