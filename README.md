@@ -1,5 +1,31 @@
 # Hecato
 
+## Instalação rápida (Linux)
+
+Requisitos: JDK 21, Maven e Git. Na pasta do Hecato, execute:
+
+```sh
+sh install.sh
+```
+
+Se necessário, adicione `~/.local/bin` ao PATH:
+
+```sh
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Depois, na pasta do projeto que deseja analisar:
+
+```sh
+hecato analyze
+hecato graph --json
+hecato endpoints
+hecato hotspot
+hecato --help
+```
+
+Para atualizar, execute novamente `sh install.sh` após atualizar o repositório. Para desinstalar, remova `~/.local/bin/hecato` e `~/.local/share/hecato/hecato.jar`. Os comandos Java abaixo continuam disponíveis.
+
 Goals of that project is index files more updated in some git project, that way identify possible risk when you need make a new chance in the project, showing what file normaly are changed.
 
 ## Technology
