@@ -20,11 +20,11 @@ public record OwnershipPolicy(String operation) implements Rule {
         var scope=c.ownership();
         var result=new ArrayList<Finding>();
         for(var n:c.persistence()){
-            if(!Set.of("SQL_READ_CANDIDATE","SQL_WRITE_CANDIDATE").contains(n.kind())) continue;
+            if(!Set.of("SQL_READ_CANDIDATE","SQL_WRITE_CANDIDATE","JPA_READ_CANDIDATE","JPA_WRITE_CANDIDATE").contains(n.kind())) continue;
             var key=scope.database()+":"+n.name().toUpperCase(Locale.ROOT);
             var owner=scope.owners().get(key);
             boolean unknown=owner==null;
-            if(operation.equals("UNKNOWN")?unknown:!unknown&&!scope.service().equals(owner)&&n.kind().equals("SQL_"+operation+"_CANDIDATE"))
+            if(operation.equals("UNKNOWN")?unknown:!unknown&&!scope.service().equals(owner)&&n.kind().endsWith("_"+operation+"_CANDIDATE"))
                 result.add(new Finding(id(),category(),severity(),unknown?"INCONCLUSIVE":"CANDIDATE",n.file(),n.line(),key+" owner="+(unknown?"unknown":owner)+" service="+scope.service()));
         }
         return result;

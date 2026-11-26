@@ -101,6 +101,7 @@ public final class AccessInventory {
             }
         }
         if(diagnostics.getDiagnostics().stream().anyMatch(d->d.getKind()==Diagnostic.Kind.ERROR)) throw new IOException("Source parsing failed");
+        result.addAll(new JpaInventory().scan(root));
         return List.copyOf(result);
     }
 }
