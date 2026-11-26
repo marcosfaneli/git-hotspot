@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.util.*;
 
 public final class RestInventory {
-    public record Endpoint(String file,long line,String method,String verb,String path,boolean body,boolean noContent,String returnType) {}
+    public record Endpoint(String file,long line,String method,String verb,String path,boolean body,boolean noContent,String returnType,Set<String> variables,boolean conditional) {
+        public Endpoint { variables=Set.copyOf(variables); }
+        public Endpoint(String file,long line,String method,String verb,String path,boolean body,boolean noContent,String returnType){this(file,line,method,verb,path,body,noContent,returnType,Set.of(),false);}
+    }
     public List<Endpoint> scan(Path root) throws IOException {
         var base=root.toAbsolutePath().normalize();
         List<Path> files;
@@ -28,7 +31,8 @@ public final class RestInventory {
             for(var unit:task.parse()) {
                 String file=base.relativize(Path.of(unit.getSourceFile().toUri())).toString().replace('\\','/');
                 new TreeScanner<Void,Void>() {
-                    String prefix="";
+                    List<String> prefixes=List.of("");
+                    boolean classConditional;
                     boolean controller;
                     String simple(AnnotationTree a) {
                         var name=a.getAnnotationType().toString(); return name.substring(name.lastIndexOf('.')+1);
@@ -54,14 +58,34 @@ public final class RestInventory {
                         }
                         return List.of("");
                     }
-                    @Override public Void visitClass(ClassTree t,Void v) {
-                        var old=prefix; boolean was=controller;
-                        controller=has(t.getModifiers(),"RestController")||has(t.getModifiers(),"Controller");
-                        prefix="";
-                        for(var a:t.getModifiers().getAnnotations()) if(simple(a).equals("RequestMapping")) {
-                            var p=paths(a); prefix=p.size()==1?p.getFirst():null;
+                    boolean conditional(AnnotationTree a) {
+                        return a.getArguments().stream().anyMatch(x->x instanceof AssignmentTree as&&!Set.of("value","path","name","method").contains(as.getVariable().toString()));
+                    }
+                    Set<String> variables(MethodTree t) {
+                        var result=new TreeSet<String>();
+                        for(var p:t.getParameters()) for(var a:p.getModifiers().getAnnotations()) if(simple(a).equals("PathVariable")) {
+                            String name=p.getName().toString();
+                            for(var arg:a.getArguments()) {
+                                ExpressionTree value=arg;
+                                if(arg instanceof AssignmentTree as) {
+                                    if(!Set.of("name","value").contains(as.getVariable().toString())) continue;
+                                    value=as.getExpression();
+                                }
+                                if(value instanceof LiteralTree l&&l.getValue() instanceof String s&&!s.isEmpty()) name=s;
+                                else name="<unresolved>";
+                            }
+                            result.add(name);
                         }
-                        super.visitClass(t,v); prefix=old; controller=was; return null;
+                        return result;
+                    }
+                    @Override public Void visitClass(ClassTree t,Void v) {
+                        var old=prefixes; boolean was=controller, oldConditional=classConditional;
+                        controller=has(t.getModifiers(),"RestController")||has(t.getModifiers(),"Controller");
+                        prefixes=List.of(""); classConditional=false;
+                        for(var a:t.getModifiers().getAnnotations()) if(simple(a).equals("RequestMapping")) {
+                            prefixes=paths(a); classConditional=conditional(a);
+                        }
+                        super.visitClass(t,v); prefixes=old; classConditional=oldConditional; controller=was; return null;
                     }
                     @Override public Void visitMethod(MethodTree t,Void v) {
                         if(!controller) return null;
@@ -76,11 +100,11 @@ public final class RestInventory {
                             if(verb.isEmpty()) continue;
                             var paths=paths(a);
                             if(paths.isEmpty()) paths=List.of("<unresolved>");
-                            for(var p:paths) {
-                                String path=prefix==null||p.equals("<unresolved>")?"<unresolved>":("/"+prefix+"/"+p).replaceAll("/+","/");
+                            for(var prefix:prefixes.isEmpty()?List.of("<unresolved>"):prefixes) for(var p:paths) {
+                                String path=prefix.equals("<unresolved>")||p.equals("<unresolved>")?"<unresolved>":("/"+prefix+"/"+p).replaceAll("/+","/");
                                 if(path.length()>1&&path.endsWith("/")) path=path.substring(0,path.length()-1);
                                 long pos=positions.getStartPosition(unit,a);
-                                endpoints.add(new Endpoint(file,pos<0?-1:unit.getLineMap().getLineNumber(pos),t.getName().toString(),verb,path,body,noContent,t.getReturnType()==null?"":t.getReturnType().toString()));
+                                endpoints.add(new Endpoint(file,pos<0?-1:unit.getLineMap().getLineNumber(pos),t.getName().toString(),verb,path,body,noContent,t.getReturnType()==null?"":t.getReturnType().toString(),variables(t),classConditional||conditional(a)));
                             }
                         }
                         return null;
