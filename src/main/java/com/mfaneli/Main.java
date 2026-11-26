@@ -6,7 +6,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         if (args.length > 0 && java.util.Set.of("analyze","endpoints").contains(args[0])) {
-            if(args.length<2||args.length>3||(args[0].equals("endpoints")&&args.length!=2)) {
+            if(args.length<2||(args[0].equals("endpoints")&&args.length!=2)) {
                 System.err.println("Usage: analyze <directory> [rules.txt] | endpoints <directory>"); System.exit(2);
             }
             try {
@@ -15,11 +15,20 @@ public class Main {
                 if(args[0].equals("endpoints")) endpoints.forEach(System.out::println);
                 else {
                     var engine=new com.mfaneli.architecture.PolicyEngine();
-                    var config=args.length==3?engine.config(java.nio.file.Path.of(args[2])):java.util.Map.<String,com.mfaneli.architecture.PolicyEngine.Severity>of();
-                    var context=new com.mfaneli.architecture.PolicyEngine.Context(endpoints,new com.mfaneli.discovery.MethodFacts().scan(root),new com.mfaneli.discovery.AccessInventory().scan(root),new com.mfaneli.architecture.GraphDiscovery().scan(root));
+                    var config=java.util.Map.<String,com.mfaneli.architecture.PolicyEngine.Severity>of();
+                    com.mfaneli.architecture.OwnershipPolicy.Scope ownership=null;
+                    boolean json=false, configured=false;
+                    for(int i=2;i<args.length;i++){
+                        if(args[i].equals("--json")) json=true;
+                        else if(args[i].equals("--ownership")&&i+3<args.length&&ownership==null) {
+                            ownership=com.mfaneli.architecture.OwnershipPolicy.Scope.load(args[++i],args[++i],java.nio.file.Path.of(args[++i]));
+                        } else if(!args[i].startsWith("--")&&!configured){config=engine.config(java.nio.file.Path.of(args[i]));configured=true;}
+                        else throw new IllegalArgumentException("Invalid analysis argument: "+args[i]);
+                    }
+                    var context=new com.mfaneli.architecture.PolicyEngine.Context(endpoints,new com.mfaneli.discovery.MethodFacts().scan(root),new com.mfaneli.discovery.AccessInventory().scan(root),new com.mfaneli.architecture.GraphDiscovery().scan(root),ownership);
                     var findings=engine.evaluate(context,com.mfaneli.architecture.PolicyEngine.defaults(),config);
-                    findings.forEach(System.out::println);
-                    System.out.println("Endpoints: "+endpoints.size()+" | Findings: "+findings.size());
+                    if(json) System.out.println(com.mfaneli.architecture.PolicyReport.json(findings,endpoints.size()));
+                    else { findings.forEach(System.out::println); System.out.println("Endpoints: "+endpoints.size()+" | Findings: "+findings.size()); }
                 }
             } catch(IOException | IllegalArgumentException e) {System.err.println(e.getMessage()); System.exit(1);}
             return;
