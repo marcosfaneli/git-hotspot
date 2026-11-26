@@ -13,7 +13,7 @@ public final class GraphReport {
         for (var e : graph.edges()) out.append(e.kind()).append(" | ").append(e.from()).append(" -> ").append(e.to()).append('\n');
         return out.toString();
     }
-    private static String q(String s) {
+    static String q(String s) {
         var out = new StringBuilder("\"");
         for (int i=0;i<s.length();i++) {
             char c=s.charAt(i);
