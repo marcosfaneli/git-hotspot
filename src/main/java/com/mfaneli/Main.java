@@ -5,6 +5,25 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        if (args.length > 0 && java.util.Set.of("analyze","endpoints").contains(args[0])) {
+            if(args.length<2||args.length>3||(args[0].equals("endpoints")&&args.length!=2)) {
+                System.err.println("Usage: analyze <directory> [rules.txt] | endpoints <directory>"); System.exit(2);
+            }
+            try {
+                var root=java.nio.file.Path.of(args[1]);
+                var endpoints=new com.mfaneli.discovery.RestInventory().scan(root);
+                if(args[0].equals("endpoints")) endpoints.forEach(System.out::println);
+                else {
+                    var engine=new com.mfaneli.architecture.PolicyEngine();
+                    var config=args.length==3?engine.config(java.nio.file.Path.of(args[2])):java.util.Map.<String,com.mfaneli.architecture.PolicyEngine.Severity>of();
+                    var context=new com.mfaneli.architecture.PolicyEngine.Context(endpoints,new com.mfaneli.discovery.MethodFacts().scan(root),new com.mfaneli.discovery.AccessInventory().scan(root));
+                    var findings=engine.evaluate(context,com.mfaneli.architecture.PolicyEngine.defaults(),config);
+                    findings.forEach(System.out::println);
+                    System.out.println("Endpoints: "+endpoints.size()+" | Findings: "+findings.size());
+                }
+            } catch(IOException | IllegalArgumentException e) {System.err.println(e.getMessage()); System.exit(1);}
+            return;
+        }
         if (args.length > 0 && java.util.Set.of("review","trace").contains(args[0])) {
             if (args.length != 4) {
                 System.err.println("Usage: review <service-directory> <service-id> <owners.txt> | trace <directory> <from-id> <to-id>");
