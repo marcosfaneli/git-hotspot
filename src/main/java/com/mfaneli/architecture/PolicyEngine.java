@@ -7,10 +7,11 @@ import java.io.IOException;
 public final class PolicyEngine {
     public enum Severity { INFO, WARNING, ERROR, OFF }
     public record Finding(String rule,String category,Severity severity,String status,String file,long line,String message) {}
-    public record Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence,ArchitectureGraph graph,OwnershipPolicy.Scope ownership) {
+    public record Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence,ArchitectureGraph graph,OwnershipPolicy.Scope ownership,List<ArchitectureGraph.Node> http) {
+        public Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence,ArchitectureGraph graph,OwnershipPolicy.Scope ownership){this(endpoints,facts,persistence,graph,ownership,List.of());}
         public Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence,ArchitectureGraph graph){this(endpoints,facts,persistence,graph,null);}
         public Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence) { this(endpoints,facts,persistence,new ArchitectureGraph(List.of(),List.of())); }
-        public Context { endpoints=List.copyOf(endpoints); facts=List.copyOf(facts); persistence=List.copyOf(persistence); }
+        public Context { endpoints=List.copyOf(endpoints); facts=List.copyOf(facts); persistence=List.copyOf(persistence); http=List.copyOf(http); }
         public Context(List<Endpoint> endpoints) { this(endpoints,List.of(),List.of()); }
     }
     public interface Rule {
@@ -41,6 +42,9 @@ public final class PolicyEngine {
     public static List<Rule> defaults() {
         return List.of(
             new GraphPolicy(),
+            new HttpPolicy("MICRO-002","HTTP_TIMEOUT_ZERO",Severity.WARNING),
+            new HttpPolicy("MICRO-003","HTTP_CONFIG_UNRESOLVED",Severity.INFO),
+            new HttpPolicy("MICRO-004","HTTP_RETRY_DECLARED",Severity.INFO),
             new OwnershipPolicy("READ"),new OwnershipPolicy("WRITE"),new OwnershipPolicy("UNKNOWN"),
             new RoutePolicy(false),
             new RoutePolicy(true),
