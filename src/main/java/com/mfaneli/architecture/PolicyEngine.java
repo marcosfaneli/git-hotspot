@@ -7,7 +7,8 @@ import java.io.IOException;
 public final class PolicyEngine {
     public enum Severity { INFO, WARNING, ERROR, OFF }
     public record Finding(String rule,String category,Severity severity,String status,String file,long line,String message) {}
-    public record Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence) {
+    public record Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence,ArchitectureGraph graph) {
+        public Context(List<Endpoint> endpoints,List<com.mfaneli.discovery.MethodFacts.Fact> facts,List<ArchitectureGraph.Node> persistence) { this(endpoints,facts,persistence,new ArchitectureGraph(List.of(),List.of())); }
         public Context { endpoints=List.copyOf(endpoints); facts=List.copyOf(facts); persistence=List.copyOf(persistence); }
         public Context(List<Endpoint> endpoints) { this(endpoints,List.of(),List.of()); }
     }
@@ -38,6 +39,7 @@ public final class PolicyEngine {
     }
     public static List<Rule> defaults() {
         return List.of(
+            new GraphPolicy(),
             new FactRule("REST-001","REST",Severity.ERROR,"GET_WRITE","Possible write from GET"),
             new FactRule("ARCH-001","ARCHITECTURE",Severity.WARNING,"CONTROLLER_REPOSITORY","Controller directly calls repository"),
             new FactRule("TX-001","TRANSACTIONS",Severity.WARNING,"SELF_TRANSACTION","Possible transactional self-invocation"),
