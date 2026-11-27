@@ -1,0 +1,39 @@
+name: Windows installer
+
+on:
+  pull_request:
+    paths:
+      - install.ps1
+      - pom.xml
+      - 'src/**'
+      - .github/workflows/windows-installer.yml
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install and check the CLI
+        shell: pwsh
+        run: |
+          $env:LOCALAPPDATA = Join-Path $env:RUNNER_TEMP 'Hecato Windows Smoke'
+          ./install.ps1
+          $bin = Join-Path $env:LOCALAPPDATA 'Hecato\bin'
+
+          hecato --help
+          if ($LASTEXITCODE -ne 0) { throw 'PowerShell launcher failed.' }
+
+          & $env:ComSpec /d /c 'hecato --help'
+          if ($LASTEXITCODE -ne 0) { throw 'CMD launcher failed.' }
+
+          ./install.ps1
+          $entries = @([Environment]::GetEnvironmentVariable('Path', 'User') -split ';' |
+            Where-Object { $_ -eq $bin })
+          if ($entries.Count -ne 1) { throw 'Expected one Hecato entry in the user PATH.' }
